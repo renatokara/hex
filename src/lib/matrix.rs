@@ -9,7 +9,7 @@ use rand::{thread_rng, Rng};
 pub struct Matrix {
     pub rows: usize,
     pub cols: usize,
-    pub data: Vec<Vec<f64>>,
+    pub data: Vec<Vec<f64>>
     
 }
 impl Matrix {
@@ -62,44 +62,21 @@ impl Matrix {
         new_matrix
     }
 
-}
-  
-impl Add for Matrix {
-    type Output = Matrix;
 
-    fn add(self, other: Matrix) -> Matrix {
-        let mut new_matrix = Matrix::zeros(self.rows, self.cols); 
+    pub fn map(&mut self, function: &dyn Fn(f64) -> f64) -> Matrix {
+        let mut new_matrix = Matrix::zeros(self.rows, self.cols);
         for i in 0..self.rows {
             for j in 0..self.cols {
-                new_matrix.data[i][j] = self.data[j][i] + other.data[j][i];
+                new_matrix.data[j][i] = function(new_matrix.data[j][i]);
             }
         }
         new_matrix
     }
-}
 
-impl Sub for Matrix {
-    type Output = Matrix;
-
-    fn sub(self, other: Matrix) -> Matrix {
-        let mut new_matrix = Matrix::zeros(self.rows, self.cols); 
-        for i in 0..self.rows {
-            for j in 0..self.cols {
-                new_matrix.data[i][j] = self.data[j][i] - other.data[j][i];
-            }
-        }
-        new_matrix
-    }
-}
-
-
-impl Mul for Matrix {
-    type Output = Matrix;
-    fn mul(self, other: Self) -> Self::Output {
+    pub fn multiply(&self, other: &Matrix) -> Matrix {
         if self.cols != other.rows {
             panic!("Wrong number of dimensions");
         }
-
 
         let mut new_matrix = Matrix::zeros(self.rows, self.cols); 
         for i in 0..self.rows {
@@ -113,7 +90,48 @@ impl Mul for Matrix {
         }
         new_matrix
     }
+    pub fn addition(&self, other: &Matrix) -> Matrix {
+        let mut new_matrix = Matrix::zeros(self.rows, self.cols); 
+        for i in 0..self.rows {
+            for j in 0..self.cols {
+                new_matrix.data[i][j] = self.data[j][i] + other.data[j][i];
+            }
+        }
+        new_matrix
+    }
+    pub fn subtract(&self, other: &Matrix) -> Matrix {
+        let mut new_matrix = Matrix::zeros(self.rows, self.cols); 
+        for i in 0..self.rows {
+            for j in 0..self.cols {
+                new_matrix.data[i][j] = self.data[j][i] - other.data[j][i];
+            }
+        }
+        new_matrix
+    }
+}
+  
+impl Add for Matrix {
+    type Output = Matrix;
 
+    fn add(self, other: Self) -> Self::Output {
+        self.addition(&other)
+    }
+}
+
+impl Sub for Matrix {
+    type Output = Matrix;
+
+    fn sub(self, other: Self) -> Self::Output {
+       self.subtract(&other)
+    }
+}
+
+
+impl Mul for Matrix {
+    type Output = Matrix;
+    fn mul(self, other: Self) -> Self::Output {
+       self.multiply(&other)
+    }
 }
 
 
